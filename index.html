@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑暗三角人格测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Playfair+Display:wght@700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --narcissism: #ff6b8a;
+            --machiavellianism: #4a9eff;
+            --psychopathy: #a78bfa;
+            --gold: #d4af37;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255,255,255,0.7);
+            --text-muted: rgba(255,255,255,0.5);
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(255,107,138,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(74,158,255,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(167,139,250,0.05) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+        
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(2%, 2%) rotate(1deg); }
+            66% { transform: translate(-1%, 1%) rotate(-1deg); }
+        }
+        
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--narcissism), var(--machiavellianism), var(--psychopathy));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 60px rgba(167,139,250,0.3);
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Venn Diagram Section */
+        .venn-section {
+            padding: 40px 20px;
+        }
+        
+        .venn-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 350px;
+            margin: 0 auto;
+        }
+        
+        .venn-circle {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .venn-circle:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        
+        .narcissism-circle {
+            background: rgba(255,107,138,0.7);
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .machiavellianism-circle {
+            background: rgba(74,158,255,0.7);
+            bottom: 20px;
+            left: 10%;
+        }
+        
+        .psychopathy-circle {
+            background: rgba(167,139,250,0.7);
+            bottom: 20px;
+            right: 10%;
+        }
+        
+        .venn-circle h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .venn-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -30%);
+            text-align: center;
+            z-index: 5;
+        }
+        
+        .venn-center span {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        /* Trait Cards */
+        .trait-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            padding: 40px 20px;
+        }
+        
+        .trait-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .trait-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        .trait-card.narcissism { border-top: 3px solid var(--narcissism); }
+        .trait-card.machiavellianism { border-top: 3px solid var(--machiavellianism); }
+        .trait-card.psychopathy { border-top: 3px solid var(--psychopathy); }
+        
+        .trait-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+        
+        .trait-card.narcissism h3 { color: var(--narcissism); }
+        .trait-card.machiavellianism h3 { color: var(--machiavellianism); }
+        .trait-card.psychopathy h3 { color: var(--psychopathy); }
+        
+        .trait-card ul {
+            list-style: none;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .trait-card li {
+            padding: 4px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .trait-card li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            opacity: 0.5;
+        }
+        
+        /* Test Section */
+        .test-section {
+            padding: 40px 20px;
+        }
+        
+        .test-intro {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .test-intro h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            color: var(--gold);
+        }
+        
+        .test-intro p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 100px;
+            height: 8px;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--narcissism), var(--machiavellianism), var(--psychopathy));
+            border-radius: 100px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        /* Questions */
+        .question-container {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .question-number {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .option:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .option.selected {
+            background: rgba(167,139,250,0.2);
+            border-color: var(--psychopathy);
+        }
+        
+        .option input {
+            display: none;
+        }
+        
+        .option-circle {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            margin-right: 16px;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .option.selected .option-circle {
+            border-color: var(--psychopathy);
+            background: var(--psychopathy);
+        }
+        
+        .option.selected .option-circle::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
+        }
+        
+        .option-text {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .option.selected .option-text {
+            color: var(--text-primary);
+        }
+        
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .btn {
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: inherit;
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--machiavellianism), var(--psychopathy));
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(167,139,250,0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-start {
+            padding: 18px 48px;
+            font-size: 1.2rem;
+            display: block;
+            margin: 40px auto;
+        }
+        
+        /* Results Section */
+        .results-section {
+            display: none;
+            padding: 40px 20px;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .results-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--gold), #f5d78e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Radar Chart */
+        .radar-container {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .radar-title {
+            text-align: center;
+            font-size: 1.3rem;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+        
+        .d-score {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--psychopathy);
+            margin-bottom: 20px;
+        }
+        
+        #radarChart {
+            max-height: 400px;
+        }
+        
+        /* Score Cards */
+        .score-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .score-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .score-card h4 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+        
+        .score-card.narcissism h4 { color: var(--narcissism); }
+        .score-card.machiavellianism h4 { color: var(--machiavellianism); }
+        .score-card.psychopathy h4 { color: var(--psychopathy); }
+        
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .score-card.narcissism .score-value { color: var(--narcissism); }
+        .score-card.machiavellianism .score-value { color: var(--machiavellianism); }
+        .score-card.psychopathy .score-value { color: var(--psychopathy); }
+        
+        .score-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 100px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+        
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 1s ease;
+        }
+        
+        .score-card.narcissism .score-bar-fill { background: var(--narcissism); }
+        .score-card.machiavellianism .score-bar-fill { background: var(--machiavellianism); }
+        .score-card.psychopathy .score-bar-fill { background: var(--psychopathy); }
+        
+        /* Overall Score */
+        .overall-score {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .overall-title {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+        
+        .overall-value {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--narcissism), var(--machiavellianism), var(--psychopathy));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .overall-bar {
+            height: 12px;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0.1) 0%, 
+                rgba(255,255,255,0.1) 100%);
+            border-radius: 100px;
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .overall-bar-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--narcissism), var(--machiavellianism), var(--psychopathy));
+            border-radius: 100px;
+            transition: width 1.5s ease;
+        }
+        
+        .overall-bar-marker {
+            position: absolute;
+            top: -8px;
+            width: 4px;
+            height: 28px;
+            background: white;
+            border-radius: 2px;
+            transition: left 1.5s ease;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        
+        .overall-labels {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        /* Percentile */
+        .percentile-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .percentile-title {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+        
+        .percentile-value {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+        
+        .percentile-bar {
+            height: 12px;
+            background: linear-gradient(90deg, #2d5a3d, #4a9eff, #f5d78e, var(--narcissism));
+            border-radius: 100px;
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .percentile-marker {
+            position: absolute;
+            top: -8px;
+            width: 4px;
+            height: 28px;
+            background: white;
+            border-radius: 2px;
+            transition: left 1.5s ease;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        
+        .percentile-labels {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        /* Distribution Chart */
+        .distribution-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .distribution-title {
+            font-size: 1.2rem;
+            margin-bottom: 24px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        
+        #distributionChart {
+            max-height: 200px;
+        }
+        
+        /* Restart Button */
+        .btn-restart {
+            display: block;
+            margin: 40px auto;
+            padding: 16px 48px;
+            background: transparent;
+            border: 2px solid var(--psychopathy);
+            color: var(--psychopathy);
+        }
+        
+        .btn-restart:hover {
+            background: var(--psychopathy);
+            color: white;
+        }
+        
+        /* Description Box */
+        .description-box {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .description-box h3 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--gold);
+        }
+        
+        .description-box p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        
+        /* Hide/Show */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .venn-container {
+                transform: scale(0.8);
+                height: 280px;
+            }
+            
+            .trait-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-secondary {
+                order: 2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>黑暗三角人格</h1>
+            <p>探索你内心深处的黑暗特质——自恋、马基雅维利主义和心理病态</p>
+        </header>
+        
+        <!-- Intro Section -->
+        <section class="intro-section" id="introSection">
+            <!-- Venn Diagram -->
+            <div class="venn-section">
+                <div class="venn-container">
+                    <div class="venn-circle narcissism-circle">
+                        <h3>自恋</h3>
+                        <span>Narcissism</span>
+                    </div>
+                    <div class="venn-circle machiavellianism-circle">
+                        <h3>马基雅维利主义</h3>
+                        <span>Machiavellianism</span>
+                    </div>
+                    <div class="venn-circle psychopathy-circle">
+                        <h3>心理病态</h3>
+                        <span>Psychopathy</span>
+                    </div>
+                    <div class="venn-center">
+                        <span>黑暗三角<br>人格</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trait Cards -->
+            <div class="trait-cards">
+                <div class="trait-card narcissism">
+                    <h3>自恋 Narcissism</h3>
+                    <ul>
+                        <li>自命不凡</li>
+                        <li>自大、骄傲</li>
+                        <li>自我中心</li>
+                        <li>缺乏同情心</li>
+                        <li>自我特权感</li>
+                    </ul>
+                </div>
+                <div class="trait-card machiavellianism">
+                    <h3>马基雅维利主义</h3>
+                    <ul>
+                        <li>操纵和剥削他人</li>
+                        <li>缺乏道德</li>
+                        <li>冷酷无情</li>
+                        <li>极端的自我中心</li>
+                        <li>工于心计</li>
+                    </ul>
+                </div>
+                <div class="trait-card psychopathy">
+                    <h3>心理病态 Psychopathy</h3>
+                    <ul>
+                        <li>反社会行为</li>
+                        <li>冲动、自私</li>
+                        <li>冷酷无情</li>
+                        <li>毫无悔意</li>
+                        <li>有攻击性</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- D Factor Description -->
+            <div class="description-box">
+                <h3>什么是黑暗人格因素(D)?</h3>
+                <p>有争议的伦理的、道德的、和社会的行为是个体日常生活的一部分。心理学家用"黑暗人格"这个统称来概括这一类行为——主要是马基雅维利主义、自恋、以及心理变态。黑暗人格因素(D)指出了所有黑暗特质的共同点，也就是它们的核心。</p>
+                <p>D描述的是个体通过蔑视、默认或者恶意激发对他人不利的结果从而最大化对自己有利的结果的倾向，同时个体还认为自己的行为具有合理性。简而言之，D水平高的人会无情地追求自己的利益并且坚信自己的行为具有合理性，就算这些行为会对他人造成不利影响(甚至这些行为仅仅是为了给他人造成不利影响)。</p>
+            </div>
+            
+            <button class="btn btn-primary btn-start" onclick="startTest()">开始测试</button>
+        </section>
+        
+        <!-- Test Section -->
+        <section class="test-section hidden" id="testSection">
+            <div class="test-intro">
+                <h2>黑暗人格测试</h2>
+                <p>请根据你的真实想法回答以下问题，选择最符合你的选项</p>
+            </div>
+            
+            <div class="progress-text" id="progressText">问题 1 / 27</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="question-container" id="questionContainer">
+                <div class="question-number" id="questionNumber">问题 1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()">上一题</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>下一题</button>
+            </div>
+        </section>
+        
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>测试结果</h2>
+                <p>你的黑暗三角人格分析报告</p>
+            </div>
+            
+            <!-- Radar Chart -->
+            <div class="radar-container">
+                <div class="radar-title">黑暗人格特质分布</div>
+                <div class="d-score" id="dScore">D: 0%</div>
+                <canvas id="radarChart"></canvas>
+            </div>
+            
+            <!-- Score Cards -->
+            <div class="score-cards">
+                <div class="score-card narcissism">
+                    <h4>自恋</h4>
+                    <div class="score-value" id="narcissismScore">0%</div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" id="narcissismBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="score-card machiavellianism">
+                    <h4>马基雅维利主义</h4>
+                    <div class="score-value" id="machiavellianismScore">0%</div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" id="machiavellianismBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="score-card psychopathy">
+                    <h4>心理病态</h4>
+                    <div class="score-value" id="psychopathyScore">0%</div>
+                    <div class="score-bar">
+                        <div class="score-bar-fill" id="psychopathyBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Overall Score -->
+            <div class="overall-score">
+                <div class="overall-title">你的总分</div>
+                <div class="overall-value" id="overallScore">0</div>
+                <div class="overall-bar">
+                    <div class="overall-bar-fill" id="overallBarFill" style="width: 0%"></div>
+                    <div class="overall-bar-marker" id="overallMarker" style="left: 0%"></div>
+                </div>
+                <div class="overall-labels">
+                    <span>很低</span>
+                    <span>很高</span>
+                </div>
+            </div>
+            
+            <!-- Percentile -->
+            <div class="percentile-section">
+                <div class="percentile-title">你的排名</div>
+                <div class="percentile-value" id="percentileValue">0%</div>
+                <div class="percentile-bar">
+                    <div class="percentile-marker" id="percentileMarker" style="left: 0%"></div>
+                </div>
+                <div class="percentile-labels">
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+            
+            <!-- Distribution Chart -->
+            <div class="distribution-section">
+                <div class="distribution-title">人群分布（你的位置用红色标记）</div>
+                <canvas id="distributionChart"></canvas>
+            </div>
+            
+            <!-- Description -->
+            <div class="description-box" id="resultDescription">
+                <h3>结果解读</h3>
+                <p id="resultText"></p>
+            </div>
+            
+            <button class="btn btn-restart" onclick="restartTest()">重新测试</button>
+        </section>
+    </div>
+
+    <script>
+        // Questions data - 27 questions (9 for each trait)
+        const questions = [
+            // Narcissism questions (1-9)
+            { text: "我觉得自己是一个特别的人，应该得到别人的特殊对待。", trait: "narcissism" },
+            { text: "我喜欢成为众人关注的焦点。", trait: "narcissism" },
+            { text: "我认为自己比大多数人都要优秀。", trait: "narcissism" },
+            { text: "我经常幻想自己取得巨大的成功和权力。", trait: "narcissism" },
+            { text: "我觉得别人应该认可我的优越性。", trait: "narcissism" },
+            { text: "我很难接受别人的批评。", trait: "narcissism" },
+            { text: "我认为很少有人值得我真正尊重。", trait: "narcissism" },
+            { text: "当我走进房间时，我希望所有人都注意到我。", trait: "narcissism" },
+            { text: "我觉得自己天生就是领导者。", trait: "narcissism" },
+            
+            // Machiavellianism questions (10-18)
+            { text: "为了达到目的，有时候说谎是必要的。", trait: "machiavellianism" },
+            { text: "我认为大多数人都是可以被操纵的。", trait: "machiavellianism" },
+            { text: "在竞争中，我会不惜一切代价获胜。", trait: "machiavellianism" },
+            { text: "我善于隐藏自己的真实意图。", trait: "machiavellianism" },
+            { text: "我认为感情用事的人容易被利用。", trait: "machiavellianism" },
+            { text: "结交朋友主要是因为他们对我有用。", trait: "machiavellianism" },
+            { text: "我会根据情况改变自己的立场和说法。", trait: "machiavellianism" },
+            { text: "我认为信任别人是愚蠢的。", trait: "machiavellianism" },
+            { text: "在必要时，我会利用别人的弱点。", trait: "machiavellianism" },
+            
+            // Psychopathy questions (19-27)
+            { text: "我很少为自己做过的事感到后悔。", trait: "psychopathy" },
+            { text: "我经常寻求刺激，即使可能有风险。", trait: "psychopathy" },
+            { text: "别人的痛苦很难引起我的同情。", trait: "psychopathy" },
+            { text: "我做事很少考虑后果。", trait: "psychopathy" },
+            { text: "我觉得规则是用来打破的。", trait: "psychopathy" },
+            { text: "我很难控制自己的冲动。", trait: "psychopathy" },
+            { text: "我对伤害别人的感觉并不敏感。", trait: "psychopathy" },
+            { text: "我觉得自己比一般人更冷酷。", trait: "psychopathy" },
+            { text: "当别人遇到麻烦时，我通常觉得是他们自己的问题。", trait: "psychopathy" }
+        ];
+        
+        const options = [
+            { text: "非常不同意", value: 1 },
+            { text: "不同意", value: 2 },
+            { text: "有点不同意", value: 3 },
+            { text: "中立", value: 4 },
+            { text: "有点同意", value: 5 },
+            { text: "同意", value: 6 },
+            { text: "非常同意", value: 7 }
+        ];
+        
+        let currentQuestion = 0;
+        let answers = new Array(questions.length).fill(null);
+        let radarChart = null;
+        let distributionChart = null;
+        
+        function startTest() {
+            document.getElementById('introSection').classList.add('hidden');
+            document.getElementById('testSection').classList.remove('hidden');
+            showQuestion(0);
+        }
+        
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+            
+            document.getElementById('questionNumber').textContent = `问题 ${index + 1}`;
+            document.getElementById('questionText').textContent = question.text;
+            document.getElementById('progressText').textContent = `问题 ${index + 1} / ${questions.length}`;
+            document.getElementById('progressBar').style.width = `${((index + 1) / questions.length) * 100}%`;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach((option, i) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option' + (answers[index] === option.value ? ' selected' : '');
+                optionDiv.innerHTML = `
+                    <input type="radio" name="answer" value="${option.value}" id="option${i}">
+                    <div class="option-circle"></div>
+                    <span class="option-text">${option.text}</span>
+                `;
+                optionDiv.onclick = () => selectOption(option.value, optionDiv);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').style.visibility = index === 0 ? 'hidden' : 'visible';
+            document.getElementById('nextBtn').textContent = index === questions.length - 1 ? '查看结果' : '下一题';
+            document.getElementById('nextBtn').disabled = answers[index] === null;
+            
+            // Animation
+            document.getElementById('questionContainer').style.animation = 'none';
+            setTimeout(() => {
+                document.getElementById('questionContainer').style.animation = 'fadeInUp 0.5s ease';
+            }, 10);
+        }
+        
+        function selectOption(value, element) {
+            answers[currentQuestion] = value;
+            
+            // Update UI
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            document.getElementById('nextBtn').disabled = false;
+        }
+        
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        }
+        
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else {
+                showResults();
+            }
+        }
+        
+        function calculateScores() {
+            const scores = {
+                narcissism: 0,
+                machiavellianism: 0,
+                psychopathy: 0
+            };
+            
+            const counts = {
+                narcissism: 0,
+                machiavellianism: 0,
+                psychopathy: 0
+            };
+            
+            questions.forEach((q, i) => {
+                if (answers[i] !== null) {
+                    scores[q.trait] += answers[i];
+                    counts[q.trait]++;
+                }
+            });
+            
+            // Calculate percentages (max score per trait = 9 * 7 = 63)
+            const maxPerTrait = 9 * 7;
+            
+            return {
+                narcissism: Math.round((scores.narcissism / maxPerTrait) * 100),
+                machiavellianism: Math.round((scores.machiavellianism / maxPerTrait) * 100),
+                psychopathy: Math.round((scores.psychopathy / maxPerTrait) * 100),
+                overall: Math.round(((scores.narcissism + scores.machiavellianism + scores.psychopathy) / (maxPerTrait * 3)) * 100),
+                rawScore: (scores.narcissism + scores.machiavellianism + scores.psychopathy) / (questions.length)
+            };
+        }
+        
+        function showResults() {
+            document.getElementById('testSection').classList.add('hidden');
+            document.getElementById('resultsSection').style.display = 'block';
+            
+            const scores = calculateScores();
+            
+            // Calculate additional metrics for radar chart
+            const detailedScores = {
+                egoism: scores.narcissism,
+                greed: Math.round((scores.narcissism + scores.machiavellianism) / 2),
+                machiavellianism: scores.machiavellianism,
+                moralDisengagement: Math.round((scores.machiavellianism + scores.psychopathy) / 2),
+                narcissism: scores.narcissism,
+                psychologicalEntitlement: Math.round((scores.narcissism * 0.7 + scores.machiavellianism * 0.3)),
+                psychopathy: scores.psychopathy,
+                sadism: Math.round((scores.psychopathy * 0.8 + scores.machiavellianism * 0.2)),
+                selfCenteredness: Math.round((scores.narcissism * 0.6 + scores.machiavellianism * 0.4)),
+                spitefulness: Math.round((scores.psychopathy * 0.6 + scores.machiavellianism * 0.4))
+            };
+            
+            // Update D score
+            document.getElementById('dScore').textContent = `D: ${scores.overall}%`;
+            
+            // Update score cards
+            document.getElementById('narcissismScore').textContent = `${scores.narcissism}%`;
+            document.getElementById('machiavellianismScore').textContent = `${scores.machiavellianism}%`;
+            document.getElementById('psychopathyScore').textContent = `${scores.psychopathy}%`;
+            
+            // Animate score bars
+            setTimeout(() => {
+                document.getElementById('narcissismBar').style.width = `${scores.narcissism}%`;
+                document.getElementById('machiavellianismBar').style.width = `${scores.machiavellianism}%`;
+                document.getElementById('psychopathyBar').style.width = `${scores.psychopathy}%`;
+            }, 100);
+            
+            // Update overall score
+            document.getElementById('overallScore').textContent = scores.rawScore.toFixed(2);
+            setTimeout(() => {
+                document.getElementById('overallBarFill').style.width = `${scores.overall}%`;
+                document.getElementById('overallMarker').style.left = `${scores.overall}%`;
+            }, 300);
+            
+            // Calculate percentile (simulated based on score)
+            const percentile = calculatePercentile(scores.overall);
+            document.getElementById('percentileValue').textContent = `${percentile}%`;
+            setTimeout(() => {
+                document.getElementById('percentileMarker').style.left = `${percentile}%`;
+            }, 500);
+            
+            // Create radar chart
+            createRadarChart(detailedScores);
+            
+            // Create distribution chart
+            createDistributionChart(scores.rawScore);
+            
+            // Generate result description
+            generateDescription(scores);
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function calculatePercentile(score) {
+            // Simulated percentile calculation
+            // Assuming normal distribution with mean ~40% and SD ~15%
+            const z = (score - 40) / 15;
+            const percentile = Math.round(50 * (1 + Math.min(Math.max(z / 2, -1), 1)));
+            return Math.min(99, Math.max(1, percentile));
+        }
+        
+        function createRadarChart(scores) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            if (radarChart) {
+                radarChart.destroy();
+            }
+            
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        '利己主义', '贪婪', '马基雅维利主义', 
+                        '道德推脱', '自恋', '心理权力',
+                        '精神变态', '施虐倾向', '自我为中心', '恶毒倾向'
+                    ],
+                    datasets: [{
+                        label: '你的分数',
+                        data: [
+                            scores.egoism, scores.greed, scores.machiavellianism,
+                            scores.moralDisengagement, scores.narcissism, scores.psychologicalEntitlement,
+                            scores.psychopathy, scores.sadism, scores.selfCenteredness, scores.spitefulness
+                        ],
+                        backgroundColor: 'rgba(167, 139, 250, 0.3)',
+                        borderColor: 'rgba(167, 139, 250, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(167, 139, 250, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(167, 139, 250, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                color: 'rgba(255,255,255,0.5)',
+                                backdropColor: 'transparent',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)'
+                            },
+                            angleLines: {
+                                color: 'rgba(255,255,255,0.1)'
+                            },
+                            pointLabels: {
+                                color: 'rgba(255,255,255,0.8)',
+                                font: {
+                                    size: 11,
+                                    family: "'Noto Sans SC', sans-serif"
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createDistributionChart(userScore) {
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            
+            if (distributionChart) {
+                distributionChart.destroy();
+            }
+            
+            // Generate normal distribution data
+            const data = [];
+            const labels = [];
+            const colors = [];
+            const userPosition = Math.round((userScore - 1) / 6 * 40); // Map 1-7 to 0-40
+            
+            for (let i = 0; i <= 40; i++) {
+                const x = i / 40 * 6 + 1; // Map back to 1-7 scale
+                const mean = 3.5;
+                const sd = 1;
+                const y = Math.exp(-0.5 * Math.pow((x - mean) / sd, 2)) / (sd * Math.sqrt(2 * Math.PI));
+                data.push(Math.round(y * 140000));
+                labels.push('');
+                colors.push(i === userPosition ? 'rgba(255, 107, 138, 1)' : 'rgba(255, 255, 255, 0.3)');
+            }
+            
+            distributionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        barPercentage: 1,
+                        categoryPercentage: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        x: {
+                            display: false,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            display: true,
+                            grid: {
+                                color: 'rgba(255,255,255,0.05)'
+                            },
+                            ticks: {
+                                color: 'rgba(255,255,255,0.5)',
+                                callback: function(value) {
+                                    return value >= 1000 ? (value / 1000) + 'k' : value;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        function generateDescription(scores) {
+            let text = '';
+            
+            if (scores.overall >= 70) {
+                text = `你的黑暗人格得分相当高（${scores.overall}%），表明你可能具有较强的自我中心倾向和操纵他人的能力。`;
+            } else if (scores.overall >= 50) {
+                text = `你的黑暗人格得分处于中等偏上水平（${scores.overall}%），显示出一定程度的自我保护意识和竞争性。`;
+            } else if (scores.overall >= 30) {
+                text = `你的黑暗人格得分处于平均水平（${scores.overall}%），表明你在大多数情况下能够平衡自身利益和他人感受。`;
+            } else {
+                text = `你的黑暗人格得分较低（${scores.overall}%），显示出较强的同理心和亲社会倾向。`;
+            }
+            
+            // Add trait-specific insights
+            const highestTrait = Object.entries({
+                '自恋': scores.narcissism,
+                '马基雅维利主义': scores.machiavellianism,
+                '心理病态': scores.psychopathy
+            }).sort((a, b) => b[1] - a[1])[0];
+            
+            text += `\n\n在三种黑暗特质中，你在「${highestTrait[0]}」维度上的得分最高（${highestTrait[1]}%）。`;
+            
+            if (highestTrait[0] === '自恋') {
+                text += '这意味着你可能更关注自我形象和他人的认可。';
+            } else if (highestTrait[0] === '马基雅维利主义') {
+                text += '这意味着你可能更倾向于策略性思考和目标导向的行为方式。';
+            } else {
+                text += '这意味着你可能更倾向于追求刺激和即时满足。';
+            }
+            
+            text += '\n\n注意：此测试仅供娱乐和自我了解，不构成任何临床诊断。如有心理健康相关疑虑，请咨询专业人士。';
+            
+            document.getElementById('resultText').innerHTML = text.replace(/\n/g, '<br>');
+        }
+        
+        function restartTest() {
+            answers = new Array(questions.length).fill(null);
+            currentQuestion = 0;
+            
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('introSection').classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
