@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>黑暗三角人格测试</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -26,12 +26,13 @@
             --text-muted: rgba(255,255,255,0.5);
         }
         
-        body {
+        html, body {
             font-family: 'Noto Sans SC', sans-serif;
             background: var(--bg-dark);
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.6;
+            overflow-x: hidden;
         }
         
         /* Animated Background */
@@ -223,34 +224,60 @@
             opacity: 0.5;
         }
         
-        /* Test Section */
+        /* ============================================
+           TEST SECTION - MOBILE OPTIMIZED
+           ============================================ */
         .test-section {
-            padding: 40px 20px;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-dark);
+            z-index: 100;
+            padding: 0;
+            overflow: hidden;
         }
         
-        .test-intro {
-            text-align: center;
-            margin-bottom: 40px;
+        .test-section.active {
+            display: flex;
+            flex-direction: column;
         }
         
-        .test-intro h2 {
-            font-size: 2rem;
-            margin-bottom: 16px;
-            color: var(--gold);
-        }
-        
-        .test-intro p {
-            color: var(--text-secondary);
+        .test-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
             max-width: 600px;
             margin: 0 auto;
+            width: 100%;
+            padding: env(safe-area-inset-top, 12px) 16px env(safe-area-inset-bottom, 12px);
         }
         
-        /* Progress Bar */
+        /* Test Header - Compact */
+        .test-header {
+            flex-shrink: 0;
+            text-align: center;
+            padding: 8px 0;
+        }
+        
+        .test-header h2 {
+            font-size: 1.1rem;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
+        
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
         .progress-container {
             background: rgba(255,255,255,0.1);
             border-radius: 100px;
-            height: 8px;
-            margin-bottom: 40px;
+            height: 4px;
             overflow: hidden;
         }
         
@@ -262,27 +289,28 @@
             width: 0%;
         }
         
-        .progress-text {
-            text-align: center;
-            margin-bottom: 20px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
+        /* Question Area - Flexible */
+        .question-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 16px 0;
+            min-height: 0;
         }
         
-        /* Questions */
         .question-container {
             background: var(--bg-card);
-            border-radius: 20px;
-            padding: 32px;
-            margin-bottom: 24px;
+            border-radius: 16px;
+            padding: 20px;
             border: 1px solid rgba(255,255,255,0.1);
-            animation: fadeInUp 0.5s ease;
+            animation: fadeInUp 0.4s ease;
         }
         
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(15px);
             }
             to {
                 opacity: 1;
@@ -291,95 +319,137 @@
         }
         
         .question-number {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         
         .question-text {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: 500;
-            margin-bottom: 24px;
-            line-height: 1.6;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
         
-        .options {
+        /* Likert Scale - Horizontal Layout */
+        .likert-scale {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
         
-        .option {
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            padding: 0 4px;
+        }
+        
+        .scale-options {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+        }
+        
+        .scale-option {
+            flex: 1;
+            aspect-ratio: 1;
+            max-width: 44px;
             display: flex;
             align-items: center;
-            padding: 16px 20px;
-            background: rgba(255,255,255,0.05);
+            justify-content: center;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid transparent;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        
-        .option:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        
-        .option.selected {
-            background: rgba(167,139,250,0.2);
-            border-color: var(--psychopathy);
-        }
-        
-        .option input {
-            display: none;
-        }
-        
-        .option-circle {
-            width: 24px;
-            height: 24px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            margin-right: 16px;
-            position: relative;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-        }
-        
-        .option.selected .option-circle {
-            border-color: var(--psychopathy);
-            background: var(--psychopathy);
-        }
-        
-        .option.selected .option-circle::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 14px;
-        }
-        
-        .option-text {
-            font-size: 1rem;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            font-weight: 600;
             color: var(--text-secondary);
         }
         
-        .option.selected .option-text {
-            color: var(--text-primary);
+        .scale-option:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.05);
         }
         
-        /* Navigation Buttons */
-        .nav-buttons {
+        .scale-option.selected {
+            background: rgba(167,139,250,0.3);
+            border-color: var(--psychopathy);
+            color: var(--text-primary);
+            transform: scale(1.1);
+        }
+        
+        .scale-option[data-value="1"],
+        .scale-option[data-value="2"] {
+            color: #6ee7b7;
+        }
+        .scale-option[data-value="1"].selected,
+        .scale-option[data-value="2"].selected {
+            background: rgba(110, 231, 183, 0.2);
+            border-color: #6ee7b7;
+        }
+        
+        .scale-option[data-value="3"],
+        .scale-option[data-value="4"],
+        .scale-option[data-value="5"] {
+            color: var(--text-secondary);
+        }
+        .scale-option[data-value="4"].selected {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.5);
+        }
+        
+        .scale-option[data-value="6"],
+        .scale-option[data-value="7"] {
+            color: var(--narcissism);
+        }
+        .scale-option[data-value="6"].selected,
+        .scale-option[data-value="7"].selected {
+            background: rgba(255, 107, 138, 0.2);
+            border-color: var(--narcissism);
+        }
+        
+        /* Scale Legend */
+        .scale-legend {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             gap: 16px;
-            margin-top: 24px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .legend-dot.disagree { background: #6ee7b7; }
+        .legend-dot.neutral { background: rgba(255,255,255,0.5); }
+        .legend-dot.agree { background: var(--narcissism); }
+        
+        /* Navigation Buttons - Fixed Bottom */
+        .nav-buttons {
+            flex-shrink: 0;
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
         }
         
         .btn {
-            padding: 14px 32px;
+            padding: 14px 24px;
             border-radius: 12px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -390,6 +460,7 @@
         .btn-secondary {
             background: rgba(255,255,255,0.1);
             color: var(--text-primary);
+            padding: 14px 20px;
         }
         
         .btn-secondary:hover {
@@ -421,7 +492,9 @@
             margin: 40px auto;
         }
         
-        /* Results Section */
+        /* ============================================
+           RESULTS SECTION
+           ============================================ */
         .results-section {
             display: none;
             padding: 40px 20px;
@@ -695,7 +768,9 @@
             display: none !important;
         }
         
-        /* Responsive */
+        /* ============================================
+           RESPONSIVE ADJUSTMENTS
+           ============================================ */
         @media (max-width: 600px) {
             .venn-container {
                 transform: scale(0.8);
@@ -706,12 +781,96 @@
                 grid-template-columns: 1fr;
             }
             
-            .nav-buttons {
-                flex-direction: column;
+            /* Test section mobile adjustments */
+            .test-wrapper {
+                padding: 8px 12px;
             }
             
-            .btn-secondary {
-                order: 2;
+            .test-header h2 {
+                font-size: 1rem;
+            }
+            
+            .question-container {
+                padding: 16px;
+            }
+            
+            .question-text {
+                font-size: 0.95rem;
+                margin-bottom: 16px;
+            }
+            
+            .scale-option {
+                max-width: 40px;
+                font-size: 0.8rem;
+                border-radius: 10px;
+            }
+            
+            .scale-labels {
+                font-size: 0.65rem;
+            }
+            
+            .btn {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Very small screens */
+        @media (max-width: 360px) {
+            .scale-option {
+                max-width: 36px;
+                font-size: 0.75rem;
+            }
+            
+            .question-text {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Landscape orientation on mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .test-header {
+                padding: 4px 0;
+            }
+            
+            .test-header h2 {
+                font-size: 0.9rem;
+                margin-bottom: 2px;
+            }
+            
+            .progress-text {
+                font-size: 0.7rem;
+                margin-bottom: 4px;
+            }
+            
+            .question-area {
+                padding: 8px 0;
+            }
+            
+            .question-container {
+                padding: 12px;
+            }
+            
+            .question-number {
+                font-size: 0.7rem;
+                margin-bottom: 4px;
+            }
+            
+            .question-text {
+                font-size: 0.85rem;
+                margin-bottom: 12px;
+            }
+            
+            .scale-option {
+                max-width: 36px;
+            }
+            
+            .nav-buttons {
+                padding: 8px 0;
+            }
+            
+            .btn {
+                padding: 10px 16px;
             }
         }
     </style>
@@ -792,31 +951,69 @@
             
             <button class="btn btn-primary btn-start" onclick="startTest()">开始测试</button>
         </section>
-        
-        <!-- Test Section -->
-        <section class="test-section hidden" id="testSection">
-            <div class="test-intro">
+    </div>
+    
+    <!-- Test Section - Full Screen Overlay -->
+    <section class="test-section" id="testSection">
+        <div class="test-wrapper">
+            <!-- Compact Header -->
+            <div class="test-header">
                 <h2>黑暗人格测试</h2>
-                <p>请根据你的真实想法回答以下问题，选择最符合你的选项</p>
+                <div class="progress-text" id="progressText">问题 1 / 27</div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
             </div>
             
-            <div class="progress-text" id="progressText">问题 1 / 27</div>
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar"></div>
+            <!-- Question Area -->
+            <div class="question-area">
+                <div class="question-container" id="questionContainer">
+                    <div class="question-number" id="questionNumber">问题 1</div>
+                    <div class="question-text" id="questionText"></div>
+                    
+                    <!-- Likert Scale -->
+                    <div class="likert-scale">
+                        <div class="scale-labels">
+                            <span>非常不同意</span>
+                            <span>中立</span>
+                            <span>非常同意</span>
+                        </div>
+                        <div class="scale-options" id="scaleOptions">
+                            <div class="scale-option" data-value="1">1</div>
+                            <div class="scale-option" data-value="2">2</div>
+                            <div class="scale-option" data-value="3">3</div>
+                            <div class="scale-option" data-value="4">4</div>
+                            <div class="scale-option" data-value="5">5</div>
+                            <div class="scale-option" data-value="6">6</div>
+                            <div class="scale-option" data-value="7">7</div>
+                        </div>
+                        <div class="scale-legend">
+                            <div class="legend-item">
+                                <div class="legend-dot disagree"></div>
+                                <span>不同意</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot neutral"></div>
+                                <span>中立</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot agree"></div>
+                                <span>同意</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div class="question-container" id="questionContainer">
-                <div class="question-number" id="questionNumber">问题 1</div>
-                <div class="question-text" id="questionText"></div>
-                <div class="options" id="optionsContainer"></div>
-            </div>
-            
+            <!-- Navigation Buttons -->
             <div class="nav-buttons">
                 <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()">上一题</button>
                 <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>下一题</button>
             </div>
-        </section>
-        
+        </div>
+    </section>
+    
+    <div class="container">
         <!-- Results Section -->
         <section class="results-section" id="resultsSection">
             <div class="results-header">
@@ -937,16 +1134,6 @@
             { text: "当别人遇到麻烦时，我通常觉得是他们自己的问题。", trait: "psychopathy" }
         ];
         
-        const options = [
-            { text: "非常不同意", value: 1 },
-            { text: "不同意", value: 2 },
-            { text: "有点不同意", value: 3 },
-            { text: "中立", value: 4 },
-            { text: "有点同意", value: 5 },
-            { text: "同意", value: 6 },
-            { text: "非常同意", value: 7 }
-        ];
-        
         let currentQuestion = 0;
         let answers = new Array(questions.length).fill(null);
         let radarChart = null;
@@ -954,8 +1141,20 @@
         
         function startTest() {
             document.getElementById('introSection').classList.add('hidden');
-            document.getElementById('testSection').classList.remove('hidden');
+            document.getElementById('testSection').classList.add('active');
+            document.body.style.overflow = 'hidden';
             showQuestion(0);
+            initScaleOptions();
+        }
+        
+        function initScaleOptions() {
+            const options = document.querySelectorAll('.scale-option');
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = parseInt(this.dataset.value);
+                    selectOption(value);
+                });
+            });
         }
         
         function showQuestion(index) {
@@ -967,19 +1166,11 @@
             document.getElementById('progressText').textContent = `问题 ${index + 1} / ${questions.length}`;
             document.getElementById('progressBar').style.width = `${((index + 1) / questions.length) * 100}%`;
             
-            const optionsContainer = document.getElementById('optionsContainer');
-            optionsContainer.innerHTML = '';
-            
-            options.forEach((option, i) => {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'option' + (answers[index] === option.value ? ' selected' : '');
-                optionDiv.innerHTML = `
-                    <input type="radio" name="answer" value="${option.value}" id="option${i}">
-                    <div class="option-circle"></div>
-                    <span class="option-text">${option.text}</span>
-                `;
-                optionDiv.onclick = () => selectOption(option.value, optionDiv);
-                optionsContainer.appendChild(optionDiv);
+            // Update scale options selection
+            const options = document.querySelectorAll('.scale-option');
+            options.forEach(option => {
+                const value = parseInt(option.dataset.value);
+                option.classList.toggle('selected', answers[index] === value);
             });
             
             // Update navigation buttons
@@ -990,18 +1181,39 @@
             // Animation
             document.getElementById('questionContainer').style.animation = 'none';
             setTimeout(() => {
-                document.getElementById('questionContainer').style.animation = 'fadeInUp 0.5s ease';
+                document.getElementById('questionContainer').style.animation = 'fadeInUp 0.4s ease';
             }, 10);
         }
         
-        function selectOption(value, element) {
+        function selectOption(value) {
             answers[currentQuestion] = value;
             
             // Update UI
-            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-            element.classList.add('selected');
+            const options = document.querySelectorAll('.scale-option');
+            options.forEach(option => {
+                const optValue = parseInt(option.dataset.value);
+                option.classList.toggle('selected', optValue === value);
+            });
             
+            // Enable next button
             document.getElementById('nextBtn').disabled = false;
+            
+            // Auto advance after short delay
+            setTimeout(() => {
+                if (currentQuestion < questions.length - 1) {
+                    nextQuestion();
+                }
+            }, 300);
+        }
+        
+        function nextQuestion() {
+            if (answers[currentQuestion] === null) return;
+            
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else {
+                showResults();
+            }
         }
         
         function prevQuestion() {
@@ -1010,75 +1222,71 @@
             }
         }
         
-        function nextQuestion() {
-            if (currentQuestion < questions.length - 1) {
-                showQuestion(currentQuestion + 1);
-            } else {
-                showResults();
-            }
-        }
-        
         function calculateScores() {
-            const scores = {
-                narcissism: 0,
-                machiavellianism: 0,
-                psychopathy: 0
-            };
-            
-            const counts = {
-                narcissism: 0,
-                machiavellianism: 0,
-                psychopathy: 0
+            const traitScores = {
+                narcissism: [],
+                machiavellianism: [],
+                psychopathy: []
             };
             
             questions.forEach((q, i) => {
                 if (answers[i] !== null) {
-                    scores[q.trait] += answers[i];
-                    counts[q.trait]++;
+                    traitScores[q.trait].push(answers[i]);
                 }
             });
             
-            // Calculate percentages (max score per trait = 9 * 7 = 63)
-            const maxPerTrait = 9 * 7;
+            const avgScore = arr => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+            const toPercent = score => Math.round(((score - 1) / 6) * 100);
+            
+            const narcissismAvg = avgScore(traitScores.narcissism);
+            const machiavellianismAvg = avgScore(traitScores.machiavellianism);
+            const psychopathyAvg = avgScore(traitScores.psychopathy);
+            
+            const overallAvg = (narcissismAvg + machiavellianismAvg + psychopathyAvg) / 3;
             
             return {
-                narcissism: Math.round((scores.narcissism / maxPerTrait) * 100),
-                machiavellianism: Math.round((scores.machiavellianism / maxPerTrait) * 100),
-                psychopathy: Math.round((scores.psychopathy / maxPerTrait) * 100),
-                overall: Math.round(((scores.narcissism + scores.machiavellianism + scores.psychopathy) / (maxPerTrait * 3)) * 100),
-                rawScore: (scores.narcissism + scores.machiavellianism + scores.psychopathy) / (questions.length)
+                narcissism: toPercent(narcissismAvg),
+                machiavellianism: toPercent(machiavellianismAvg),
+                psychopathy: toPercent(psychopathyAvg),
+                overall: toPercent(overallAvg),
+                rawScore: overallAvg
+            };
+        }
+        
+        function calculateDetailedScores() {
+            // For radar chart - simulated sub-dimensions
+            const scores = calculateScores();
+            return {
+                egoism: Math.round(scores.narcissism * 0.9 + Math.random() * 10),
+                greed: Math.round(scores.machiavellianism * 0.85 + Math.random() * 15),
+                machiavellianism: scores.machiavellianism,
+                moralDisengagement: Math.round((scores.machiavellianism + scores.psychopathy) / 2),
+                narcissism: scores.narcissism,
+                psychologicalEntitlement: Math.round(scores.narcissism * 0.95 + Math.random() * 5),
+                psychopathy: scores.psychopathy,
+                sadism: Math.round(scores.psychopathy * 0.8 + Math.random() * 10),
+                selfCenteredness: Math.round((scores.narcissism + scores.machiavellianism) / 2),
+                spitefulness: Math.round(scores.psychopathy * 0.75 + Math.random() * 10)
             };
         }
         
         function showResults() {
-            document.getElementById('testSection').classList.add('hidden');
+            document.getElementById('testSection').classList.remove('active');
+            document.body.style.overflow = '';
             document.getElementById('resultsSection').style.display = 'block';
             
             const scores = calculateScores();
-            
-            // Calculate additional metrics for radar chart
-            const detailedScores = {
-                egoism: scores.narcissism,
-                greed: Math.round((scores.narcissism + scores.machiavellianism) / 2),
-                machiavellianism: scores.machiavellianism,
-                moralDisengagement: Math.round((scores.machiavellianism + scores.psychopathy) / 2),
-                narcissism: scores.narcissism,
-                psychologicalEntitlement: Math.round((scores.narcissism * 0.7 + scores.machiavellianism * 0.3)),
-                psychopathy: scores.psychopathy,
-                sadism: Math.round((scores.psychopathy * 0.8 + scores.machiavellianism * 0.2)),
-                selfCenteredness: Math.round((scores.narcissism * 0.6 + scores.machiavellianism * 0.4)),
-                spitefulness: Math.round((scores.psychopathy * 0.6 + scores.machiavellianism * 0.4))
-            };
+            const detailedScores = calculateDetailedScores();
             
             // Update D score
             document.getElementById('dScore').textContent = `D: ${scores.overall}%`;
             
-            // Update score cards
+            // Update trait scores
             document.getElementById('narcissismScore').textContent = `${scores.narcissism}%`;
             document.getElementById('machiavellianismScore').textContent = `${scores.machiavellianism}%`;
             document.getElementById('psychopathyScore').textContent = `${scores.psychopathy}%`;
             
-            // Animate score bars
+            // Animate progress bars
             setTimeout(() => {
                 document.getElementById('narcissismBar').style.width = `${scores.narcissism}%`;
                 document.getElementById('machiavellianismBar').style.width = `${scores.machiavellianism}%`;
